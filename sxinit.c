@@ -49,7 +49,6 @@ static void die(const char *msg) {
 }
 
 static void start_xserv() {
-
 	int fd[2];
 	if (-1 == pipe(fd)) {
 		die("pipe:");
@@ -96,7 +95,6 @@ static void start_xserv() {
 }
 
 static void start_xinit() {
-
 	pid_t xinit_pid = fork();
 	if (xinit_pid == -1) {
 		die("fork:");
@@ -113,7 +111,6 @@ static void start_xinit() {
 
 
 int main(int argc, char *argv[]) {
-
 	if (-1 == pipe(signalpipe)) {
 		die("pipe:");
 	}
@@ -121,7 +118,6 @@ int main(int argc, char *argv[]) {
 	handle_signals(handler);
 
 	char *home = getenv("HOME");
-	
 	if (home == NULL) {
 		die("HOME enviroment variable is not set");
 	}
