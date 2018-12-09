@@ -81,23 +81,18 @@ static void start_xserv() {
 	
 	close(fd[0]);
 
-	int ok = 0;
 	int i;
 	for (i = 0; i < n + 1; i++) {
 		if (display[i] == '\n') {
-			ok = 1;
 			display[i] = '\0';
-			break;
+			if (-1 == setenv("DISPLAY", display, 1)) {
+				die("setenv:");
+			}
+			return;
 		}
 	}
 
-	if (!ok) {
-		die("failed to read display number");
-	}
-
-	if (-1 == setenv("DISPLAY", display, 1)) {
-		die("setenv:");
-	}
+	die("failed to read display number");
 }
 
 static void start_xinit() {
