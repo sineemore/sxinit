@@ -6,8 +6,8 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-char displayfd[7];
-char *xserv_cmd[] = {"X", ":1", "-displayfd", displayfd, NULL};
+char displayfd[7] = "?";
+char *xserv_cmd[] = {"X", "-displayfd", displayfd, NULL};
 char *xinit_cmd[] = {"sh", "/home/user/.xinitrc", NULL};
 
 static pid_t xserv_pid = 0;
@@ -48,7 +48,14 @@ static void die(const char *msg) {
 	exit(EXIT_FAILURE);
 }
 
-static void start_xserv() {
+static void start_xserv(int argc, char *argv[]) {
+
+	char *cmd[sizeof(xserv_cmd) / sizeof(xserv_cmd[0]) + argc];
+	int i = 0, j = 0;
+	for (i = 0; xserv_cmd[i]; i++) cmd[i] = xserv_cmd[i];
+	for (j = 0; argv[j]; j++) cmd[i + j] = argv[j];
+	cmd[i + j] = NULL;
+
 	int fd[2];
 	if (-1 == pipe(fd)) {
 		die("pipe:");
@@ -66,7 +73,7 @@ static void start_xserv() {
 		close(signalpipe[1]);
 		handle_signals(SIG_DFL);
 		close(fd[0]);
-		execvp(xserv_cmd[0], xserv_cmd);
+		execvp(cmd[0], cmd);
 		exit(1);
 	}
 	
@@ -80,10 +87,10 @@ static void start_xserv() {
 	
 	close(fd[0]);
 
-	int i;
-	for (i = 0; i < n + 1; i++) {
-		if (display[i] == '\n') {
-			display[i] = '\0';
+	int k;
+	for (k = 0; k < n + 1; k++) {
+		if (display[k] == '\n') {
+			display[k] = '\0';
 			if (-1 == setenv("DISPLAY", display, 1)) {
 				die("setenv:");
 			}
@@ -125,8 +132,8 @@ int main(int argc, char *argv[]) {
 	if (-1 == chdir(home)) {
 		die("chdir:");
 	}
-	
-	start_xserv();
+
+	start_xserv(argc - 1, argv + 1);
 	start_xinit();
 
 	char running = 1;
