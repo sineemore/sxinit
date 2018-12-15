@@ -24,7 +24,6 @@ static void handle_signals(void (*func)(int)) {
 	sa.sa_flags = func == handler ? SA_RESTART : 0;
 	sigaction(SIGTERM, &sa, NULL);
 	sigaction(SIGINT, &sa, NULL);
-	sigaction(SIGQUIT, &sa, NULL);
 	sigaction(SIGCHLD, &sa, NULL);
 }
 
