@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,9 +35,11 @@ static void cleanup() {
 }
 
 static void die(const char *msg) {
+	int rc = errno;
 	fputs(msg, stderr);
 	if (msg[0] && msg[strlen(msg)-1] == ':') {
 		fputc(' ', stderr);
+		errno = rc;
 		perror(NULL);
 	} else {
 		fputc('\n', stderr);
