@@ -8,7 +8,7 @@
 #include <unistd.h>
 
 static char displayfd[7] = "?";
-static char *xserv_cmd[] = {"X", "-displayfd", displayfd, NULL};
+static char *xserv_cmd[] = {"X", "-displayfd", displayfd, "-noreset", NULL};
 static char *xinit_cmd[] = {"sh", "/home/user/.xinitrc", NULL};
 static pid_t xserv_pid = 0;
 static pid_t xinit_pid = 0;
