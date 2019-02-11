@@ -80,7 +80,7 @@ static void start_xserv(int argc, char *argv[]) {
 	
 	close(fd[1]);
 
-	char display[10] = { ':', 0 };
+	char display[10] = ":";
 	int n = read(fd[0], display + 1, sizeof(display) - 1);
 	if (n == -1)
 		die("read:");
