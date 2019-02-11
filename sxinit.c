@@ -69,11 +69,10 @@ static void start_xserv(int argc, char *argv[]) {
 
 	snprintf(displayfd, sizeof(displayfd), "%d", fd[1]);
 
-	xserv_pid = fork();
-	if (xserv_pid == -1)
+	switch (xserv_pid = fork()) {
+	case -1:
 		die("fork:");
-	
-	if (xserv_pid == 0) {
+	case 0:
 		close(signalpipe[0]);
 		close(signalpipe[1]);
 		handle_signals(SIG_DFL);
@@ -105,11 +104,10 @@ static void start_xserv(int argc, char *argv[]) {
 }
 
 static void start_xinit() {
-	pid_t xinit_pid = fork();
-	if (xinit_pid == -1)
+	switch (xinit_pid = fork()) {
+	case -1:
 		die("fork:");
-
-	if (xinit_pid == 0) {
+	case 0:
 		close(signalpipe[0]);
 		close(signalpipe[1]);
 		handle_signals(SIG_DFL);
