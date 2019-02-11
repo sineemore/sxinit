@@ -131,9 +131,8 @@ int main(int argc, char *argv[]) {
 	start_xserv(argc - 1, argv + 1);
 	start_xinit();
 
-	char running = 1;
-	while (running)
-		read(signalpipe[0], &running, 1);
+	char t = 1;
+	read(signalpipe[0], &t, 1);
 	
 	cleanup();
 	
