@@ -20,15 +20,6 @@ void handler(int s) {
 	errno = t;
 }
 
-static void handle_signals(void (*func)(int)) {
-	struct sigaction sa = {0};
-	sa.sa_handler = handler;
-	sa.sa_flags = func == handler ? SA_RESTART : 0;
-	sigaction(SIGTERM, &sa, NULL);
-	sigaction(SIGINT, &sa, NULL);
-	sigaction(SIGCHLD, &sa, NULL);
-}
-
 static void cleanup() {
 	if (xserv_pid > 0) kill(xserv_pid, SIGTERM);
 	if (xinit_pid > 0) kill(xinit_pid, SIGTERM);
@@ -49,6 +40,17 @@ static void die(const char *msg) {
 	
 	cleanup();
 	exit(EXIT_FAILURE);
+}
+
+static void handle_signals(void (*func)(int)) {
+	struct sigaction sa = {0};
+	sa.sa_handler = handler;
+	sa.sa_flags = func == handler ? SA_RESTART : 0;
+	sigaction(SIGTERM, &sa, NULL);
+	sigaction(SIGINT, &sa, NULL);
+	sigaction(SIGCHLD, &sa, NULL);
+	if (errno)
+		die("sigaction:");
 }
 
 static void start_xserv(int argc, char *argv[]) {
