@@ -15,7 +15,9 @@ static pid_t xinit_pid = 0;
 static int signalpipe[2];
 
 void handler(int s) {
+	int t = errno;
 	write(signalpipe[1], "", 1);
+	errno = t;
 }
 
 static void handle_signals(void (*func)(int)) {
@@ -35,11 +37,11 @@ static void cleanup() {
 }
 
 static void die(const char *msg) {
-	int rc = errno;
+	int t = errno;
 	fputs(msg, stderr);
 	if (msg[0] && msg[strlen(msg)-1] == ':') {
 		fputc(' ', stderr);
-		errno = rc;
+		errno = t;
 		perror(NULL);
 	} else {
 		fputc('\n', stderr);
