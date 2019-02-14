@@ -7,17 +7,18 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+#define LENGTH(A) (sizeof(A) / sizeof((A)[0]))
+
 static char displayfd[7] = "?";
 static char *xserv_cmd[] = {"X", "-displayfd", displayfd, "-noreset", NULL};
 static char *xinit_cmd[] = {"sh", ".xinitrc", NULL};
 static pid_t xserv_pid = 0;
 static pid_t xinit_pid = 0;
-static int signalpipe[2];
+static sigset_t oldset;
+static int signals[] = {SIGTERM, SIGINT, SIGCHLD};
 
 void handler(int s) {
-	int t = errno;
-	write(signalpipe[1], "", 1);
-	errno = t;
+	return;
 }
 
 static void cleanup() {
@@ -42,20 +43,9 @@ static void die(const char *msg) {
 	exit(EXIT_FAILURE);
 }
 
-static void handle_signals(void (*func)(int)) {
-	struct sigaction sa = {0};
-	sa.sa_handler = handler;
-	sa.sa_flags = func == handler ? SA_RESTART : 0;
-	sigaction(SIGTERM, &sa, NULL);
-	sigaction(SIGINT, &sa, NULL);
-	sigaction(SIGCHLD, &sa, NULL);
-	if (errno)
-		die("sigaction:");
-}
-
 static void start_xserv(int argc, char *argv[]) {
 
-	char *cmd[sizeof(xserv_cmd) / sizeof(xserv_cmd[0]) + argc];
+	char *cmd[LENGTH(xserv_cmd) + argc];
 	int i = 0, j = 0;
 	for (i = 0; xserv_cmd[i]; i++)	
 		cmd[i] = xserv_cmd[i];
@@ -64,7 +54,7 @@ static void start_xserv(int argc, char *argv[]) {
 	cmd[i + j] = NULL;
 
 	int fd[2];
-	if (-1 == pipe(fd))
+	if (pipe(fd))
 		die("pipe:");
 
 	snprintf(displayfd, sizeof(displayfd), "%d", fd[1]);
@@ -73,10 +63,8 @@ static void start_xserv(int argc, char *argv[]) {
 	case -1:
 		die("fork:");
 	case 0:
-		close(signalpipe[0]);
-		close(signalpipe[1]);
-		handle_signals(SIG_DFL);
 		close(fd[0]);
+		sigprocmask(SIG_SETMASK, &oldset, NULL);
 		execvp(cmd[0], cmd);
 		exit(1);
 	}
@@ -94,7 +82,7 @@ static void start_xserv(int argc, char *argv[]) {
 	for (k = 0; k < n + 1; k++) {
 		if (display[k] == '\n') {
 			display[k] = '\0';
-			if (-1 == setenv("DISPLAY", display, 1))
+			if (setenv("DISPLAY", display, 1))
 				die("setenv:");
 			return;
 		}
@@ -108,35 +96,45 @@ static void start_xinit() {
 	case -1:
 		die("fork:");
 	case 0:
-		close(signalpipe[0]);
-		close(signalpipe[1]);
-		handle_signals(SIG_DFL);
+		sigprocmask(SIG_SETMASK, &oldset, NULL);
 		execvp(xinit_cmd[0], xinit_cmd);
 		exit(1);
 	}
 }
 
-
 int main(int argc, char *argv[]) {
-	if (-1 == pipe(signalpipe))
-		die("pipe:");
+	struct sigaction sa = {0};
+	sa.sa_handler = handler;
 
-	handle_signals(handler);
+	if (sigemptyset(&sa.sa_mask))
+		die("sigemptyset:");
+
+	for (int i = 0; i < LENGTH(signals); i++)
+		if (sigaddset(&sa.sa_mask, signals[i]))
+			die("sigaddset:");
+
+	if (sigprocmask(SIG_BLOCK, &sa.sa_mask, &oldset))
+		die("sigprocmask:");
 
 	char *home = getenv("HOME");
 	if (home == NULL)
 		die("HOME enviroment variable is not set");
 	
-	if (-1 == chdir(home))
+	if (chdir(home))
 		die("chdir:");
 
 	start_xserv(argc - 1, argv + 1);
 	start_xinit();
 
-	char t = 1;
-	read(signalpipe[0], &t, 1);
-	
+	for (int i = 0; i < LENGTH(signals); i++)
+		if (sigaction(signals[i], &sa, NULL))
+			die("sigaction:");
+
+	sigsuspend(&oldset);
+	if (errno != EINTR)
+		die("sigsuspend:");
+
 	cleanup();
-	
+
 	return EXIT_SUCCESS;
 }
