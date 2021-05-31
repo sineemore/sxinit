@@ -1,8 +1,8 @@
 .POSIX:
 .SUFFIXES:
 NAME    = sxinit
-CC      = cc
-CFLAGS  = -std=c99 -pedantic -Wall -Werror -D_POSIX_C_SOURCE=200809L
+CC      = gcc
+CFLAGS  = -Os
 LDFLAGS =
 SRC     = $(NAME).c
 OBJ     = ${SRC:.c=.o}
@@ -10,13 +10,8 @@ OBJ     = ${SRC:.c=.o}
 
 all: $(NAME)
 
-$(NAME): $(NAME).o
-	$(CC) $(LDFLAGS) -o $@ $^
-
-.SUFFIXES: .c .o
-$(OBJ):
-.c.o:
-	$(CC) $(CFLAGS) -c $<
+sxinit: sxinit.c
+	$(CC) $(CFLAGS) -o sxinit sxinit.c
 
 install: all
 	mkdir -p $(PREFIX)/bin
@@ -26,3 +21,6 @@ install: all
 .PHONY: clean
 clean:
 	rm -f -- $(NAME) $(OBJ)
+
+sx: sxinit.c minilib.conf
+	$(MINI_GCC) --config minilib.conf -o sxinit sxinit.c
