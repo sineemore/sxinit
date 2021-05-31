@@ -1,5 +1,6 @@
 # sxinit
 
+
 `sxinit` starts `Xserver` and `~/.xinitrc` script. 
 ~~All `sxinit` arguments are passed to `Xserver` as is.~~
 
@@ -32,3 +33,4 @@
  minilib (github.com/michael105/minilib) statically (2.9kB).
 
 
+I still do have some cleanup and testing to do.
