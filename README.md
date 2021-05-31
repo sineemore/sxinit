@@ -22,12 +22,12 @@
 	 which can be checked for security flaws,
 	 with sametime known vulnerabilities of the xserver.
 	
-	 All arguments submitted to sxinit are now submitted to xinit.
+	 All arguments submitted to sxinit are submitted to xinit.
 	
 	 The suid rights of sxinit are droppped, as soon the xserver runs.
 	
 	 (todo) When there's no /home/user/.xinitrc file present,
-	 or the script exits with an error (>0), 
+	 or the script exits with a value > 0 , 
 	 the default /etc/X11/xinitrc script is executed.
 	
 	 Wrote the configuration file to (optionally) compile sxinit with the devel branch of 
