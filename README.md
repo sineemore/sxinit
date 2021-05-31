@@ -26,11 +26,11 @@
 	 The suid rights of sxinit are droppped, as soon the xserver runs.
 	
 	 (todo) When there's no /home/user/.xinitrc file present,
-	 or the scripts exits with an error (>0), 
+	 or the script exits with an error (>0), 
 	 the default /etc/X11/xinitrc script is executed.
 	
 	 Wrote the configuration file to (optionally) compile sxinit with the devel branch of 
 	 minilib (github.com/michael105/minilib) statically (2.9kB).
 
 
-I still do have some cleanup and testing to do.
+Still have some cleanup and testing to do.
