@@ -28,7 +28,7 @@
  or the scripts exits with an error (>0), 
  the default /etc/X11/xinitrc script is executed.
 
- Wrote the configuration file to compile sxinit with the devel branch of 
+ Wrote the configuration file to (optionally) compile sxinit with the devel branch of 
  minilib (github.com/michael105/minilib) statically (2.9kB).
 
 
