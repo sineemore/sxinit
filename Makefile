@@ -6,7 +6,7 @@ CFLAGS  = -Os
 LDFLAGS =
 SRC     = $(NAME).c
 OBJ     = ${SRC:.c=.o}
-
+MINI_GCC= mini-gcc
 
 all: $(NAME)
 
@@ -16,11 +16,12 @@ sxinit: sxinit.c
 install: all
 	mkdir -p $(PREFIX)/bin
 	cp -f $(NAME) $(PREFIX)/bin
-	chmod 755 ${DESTDIR}${PREFIX}/bin/$(NAME)
+	sudo chown root:root ${DESTDIR}${PREFIX}/bin/$(NAME)
+	sudo chmod u+s ${DESTDIR}${PREFIX}/bin/$(NAME)
 
 .PHONY: clean
 clean:
 	rm -f -- $(NAME) $(OBJ)
 
-sx: sxinit.c minilib.conf
+with-minilib: sxinit.c minilib.conf
 	$(MINI_GCC) --config minilib.conf -o sxinit sxinit.c
