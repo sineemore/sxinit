@@ -102,7 +102,6 @@ static void start_xserv() {
 	int n = read(fd[0], display+sizeof(DISPLAY_ENV)-2, 7);
 
 	fputs(display,stderr);
-			fputs("read\n",stderr);
 
 	if (n == -1){
 		die("Couldn't read from pipe");
@@ -113,7 +112,6 @@ static void start_xserv() {
 	for (int k = sizeof(DISPLAY_ENV)-1; k < n + sizeof(DISPLAY_ENV); k++) {
 		if ( (display[k] == '\n') || ( display[k] == 0 ) ) {
 			display[k] = '\0';
-			fputs("found\n",stderr);
 			if (putenv(display))
 				die("putenv:");
 			return;
@@ -129,19 +127,12 @@ static void start_xinit(int argc, char *argv[]) {
 	if (xinit_pid == -1)
 		die("fork:");
 
-	if (xinit_pid)
+	if (xinit_pid) // parent
 		return;
 
 	sigprocmask(SIG_SETMASK, &oldset, NULL);
 
 	char buf[PATH_MAX];
-	char *home = getenv("HOME");
-	if ( !home ){
-		strcpy(buf,DEFAULT_XINITRC);
-	} else {
-		char *c = stpcpy(buf,home);
-		strcpy(c,"/.xinitrc");
-	}
 
 	char *xinitcmd[argc+3];
 	xinitcmd[0] = SHELL;
@@ -152,6 +143,20 @@ static void start_xinit(int argc, char *argv[]) {
 	while( ( *xp = *argv ) ){
 		xp++; argv++;
 	}
+
+	char *home = getenv("HOME");
+	if ( home ){
+		char *c = stpcpy(buf,home);
+		strcpy(c,"/.xinitrc");
+		execve( xinitcmd[0], xinitcmd, environ);
+	} else {
+		fputs("HOME variable is not set.\n",stderr);
+	}
+
+	fputs("Using " DEFAULT_XINITRC "\n",stderr);
+
+	// either HOME is not set, or no xinitrc present
+	strcpy(buf,DEFAULT_XINITRC);
 
 	execve( xinitcmd[0], xinitcmd, environ);
 
