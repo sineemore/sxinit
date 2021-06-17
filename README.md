@@ -30,8 +30,14 @@
 	 When there's no /home/user/.xinitrc file present,
 	 the default /etc/X11/xinitrc script is executed.
 	
-	 'minilib.conf' is a configuration file to (optionally) compile sxinit  
-	 statically linked with minilib (github.com/michael105/minilib) (2.9kB)
-    via 'make with-minilib'
+	 'minilib.conf' is a configuration file to (optionally) download Makefile.minilib 
+	 and minilib.h from github, and compile sxinit statically linked with minilib 
+	 (github.com/michael105/minilib) to ~3.5kB.
+    'make -f minilib.conf'
+	 
+	 There is the possibility (and IMHO advantage) of being able to see
+	 the complete sources, including all used parts of minilib,
+	 with 'SHOWSOURCE=1 make -f minilib.conf'
+
 
 
