@@ -38,6 +38,8 @@
 	 There is the possibility (and IMHO advantage) of being able to see
 	 the complete sources, including all used parts of minilib,
 	 with 'SHOWSOURCE=1 make -f minilib.conf'
+	 When skipping through the (mostly unused) type definitions and praedeclarations,
+	 this gets down to around 500 locs.
 
 
 
