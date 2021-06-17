@@ -23,5 +23,7 @@ install: all
 clean:
 	rm -f -- $(NAME) $(OBJ)
 
-with-minilib: sxinit.c minilib.conf
-	$(MINI_GCC) --config minilib.conf -o sxinit sxinit.c
+with-minilib:
+	make -f minilib.conf
+
+
