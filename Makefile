@@ -1,17 +1,22 @@
 .POSIX:
 .SUFFIXES:
 NAME    = sxinit
-CC      = gcc
-CFLAGS  = -Os
+CC      = cc
+CFLAGS  = -std=c99 -pedantic -Wall -Werror -D_POSIX_C_SOURCE=200809L
 LDFLAGS =
 SRC     = $(NAME).c
 OBJ     = ${SRC:.c=.o}
-MINI_GCC= mini-gcc
+
 
 all: $(NAME)
 
-sxinit: sxinit.c
-	$(CC) $(CFLAGS) -o sxinit sxinit.c
+$(NAME): $(NAME).o
+	$(CC) $(LDFLAGS) -o $@ $^
+
+.SUFFIXES: .c .o
+$(OBJ):
+.c.o:
+	$(CC) $(CFLAGS) -c $<
 
 install: all
 	mkdir -p $(PREFIX)/bin
